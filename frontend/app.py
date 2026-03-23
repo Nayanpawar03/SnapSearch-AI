@@ -351,7 +351,7 @@ def show_gallery(results, key_prefix):
 
 
 # ── tabs ──────────────────────────────────────────────────
-tab1, tab2 = st.tabs(["Text Search", "Image Search"])
+tab1, tab2, tab3 = st.tabs(["Text Search", "Image Search", "NLP Analysis"])
 
 with tab1:
     text_query = st.text_input(
@@ -392,3 +392,51 @@ with tab2:
 
     if "image_results" in st.session_state:
         show_gallery(apply_label_filter(st.session_state["image_results"]), key_prefix="image")
+
+with tab3:
+    from backend.nlp_compare import compare_queries, rank_labels_for_query
+
+    st.markdown("### Compare two queries")
+    st.caption("See how CLIP vs Sentence Transformers interpret semantic similarity differently.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        qa = st.text_input("Query A", placeholder="e.g. bird flying in sky", key="qa")
+    with col2:
+        qb = st.text_input("Query B", placeholder="e.g. eagle soaring", key="qb")
+
+    if st.button("Compare", key="compare_btn"):
+        if qa.strip() and qb.strip():
+            with st.spinner("Computing embeddings..."):
+                result = compare_queries(qa, qb)
+            c1, c2 = st.columns(2)
+            c1.metric("CLIP Similarity",  f"{result['clip_similarity']:.4f}")
+            c2.metric("SBERT Similarity", f"{result['sbert_similarity']:.4f}")
+            st.info(result["interpretation"])
+        else:
+            st.warning("Enter both queries.")
+
+    st.markdown("---")
+    st.markdown("### Rank labels for a query")
+    st.caption("See which of your image categories best match a query according to each model.")
+
+    rank_query = st.text_input("Query", placeholder="e.g. flying animal", key="rank_q")
+    if st.button("Rank Labels", key="rank_btn"):
+        if rank_query.strip():
+            with st.spinner("Ranking..."):
+                ranks = rank_labels_for_query(rank_query)
+            if ranks:
+                for r in ranks:
+                    st.markdown(
+                        f'<div style="background:#161824;border:1px solid #2d3148;border-radius:10px;'
+                        f'padding:10px 16px;margin-bottom:8px;display:flex;justify-content:space-between;">'
+                        f'<span style="color:#f9fafb;font-weight:600;">🏷️ {r["label"]}</span>'
+                        f'<span><span style="color:#a78bfa;margin-right:16px;">CLIP: {r["clip_score"]:.4f}</span>'
+                        f'<span style="color:#60a5fa;">SBERT: {r["sbert_score"]:.4f}</span></span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+            else:
+                st.info("No labels found. Run the indexer first.")
+        else:
+            st.warning("Enter a query.")
