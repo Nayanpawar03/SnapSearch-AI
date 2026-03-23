@@ -2,9 +2,9 @@
 
 ## What is this?
 
-SnapSearch AI is a local image search engine that lets you search through images on your computer using natural language or another image — no internet required, no cloud APIs, everything runs on your machine.
+SnapSearch AI is a local image search engine that lets you search through images on your computer using natural language or another image, no internet required, no cloud APIs, everything runs on your machine.
 
-Think of it like Google Image Search, but for your own folders. You can type something like *"poster about operating systems"* or *"bird flying at night"* and the system will find the most visually and semantically relevant images from your indexed folder — even if those exact words don't appear anywhere in the filenames.
+Think of it like Google Image Search, but for your own folders. You can type something like *"poster about operating systems"* or *"bird flying at night"* and the system will find the most visually and semantically relevant images from your indexed folder, even if those exact words don't appear anywhere in the filenames.
 
 ---
 
