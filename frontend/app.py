@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import streamlit as st
 from PIL import Image
 import io
+import json
 from backend.searcher import search
 from backend.indexer  import index_images
 
@@ -171,6 +172,23 @@ st.sidebar.markdown("---")
 top_k     = st.sidebar.slider("Total results", 1, 50, 10)
 page_size = st.sidebar.slider("Images per page", 1, 10, 5)
 
+# ── label filter ──────────────────────────────────────────
+st.sidebar.markdown("---")
+st.sidebar.markdown("**🏷️ Filter by Label**")
+_labels_path = "models/class_labels.json"
+if os.path.exists(_labels_path):
+    with open(_labels_path) as f:
+        all_labels = json.load(f)
+    selected_labels = st.sidebar.multiselect(
+        "Show only these labels",
+        options=all_labels,
+        default=[],
+        placeholder="All labels (no filter)"
+    )
+else:
+    selected_labels = []
+    st.sidebar.caption("Train a classifier to enable label filtering.")
+
 
 # ── image bytes helper for download ──────────────────────
 def get_image_bytes(path):
@@ -178,6 +196,13 @@ def get_image_bytes(path):
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     return buf.getvalue()
+
+
+def apply_label_filter(results):
+    """Filter results by selected labels. If none selected, return all."""
+    if not selected_labels:
+        return results
+    return [r for r in results if r.get("label") in selected_labels]
 
 
 # ── gallery layout ────────────────────────────────────────
@@ -348,7 +373,7 @@ with tab1:
                     st.session_state["text_results"] = []
 
     if "text_results" in st.session_state:
-        show_gallery(st.session_state["text_results"], key_prefix="text")
+        show_gallery(apply_label_filter(st.session_state["text_results"]), key_prefix="text")
 
 with tab2:
     uploaded = st.file_uploader("Upload a query image", type=["jpg","jpeg","png","bmp","webp"])
@@ -366,4 +391,4 @@ with tab2:
                 st.session_state["image_results"] = []
 
     if "image_results" in st.session_state:
-        show_gallery(st.session_state["image_results"], key_prefix="image")
+        show_gallery(apply_label_filter(st.session_state["image_results"]), key_prefix="image")
