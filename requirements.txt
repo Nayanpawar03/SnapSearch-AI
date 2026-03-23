@@ -1,0 +1,17 @@
+torch
+torchvision
+transformers
+ftfy
+regex
+tqdm
+faiss-cpu
+Pillow
+streamlit
+numpy
+scikit-learn
+sentence-transformers
+open-clip-torch
+matplotlib
+fastapi
+uvicorn
+python-multipart
