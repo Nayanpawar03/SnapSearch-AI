@@ -1,4 +1,4 @@
-# SnapSearch AI — AI-Powered Local Image Search Engine
+# SnapSearch AI — Local Image Search Engine
 
 ## What is this?
 
